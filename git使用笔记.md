@@ -64,6 +64,23 @@
      可以使用命令查看更加详细的分支信息，包括远程和本地分支
      git branch -a
      ```
+## 配置用户名和邮箱
+- 用户名和邮箱用于查看提交信息
+```git
+$ git config --global user.name
+ayuan-01
+$ git config --global user.email
+sywangxdu@163.com
+```
+- 配置当前仓库的用户名和邮箱
+```git
+$ git config --local user.name
+$ git config --local user.email
+```
+- 查看配置
+```git
+git config --list
+```
 
 # 创建私人仓库并链接本地仓库
 
