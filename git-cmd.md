@@ -81,11 +81,25 @@ git checkout hotfix
 git checkout hotfix          # 切换到本地分支
 git remote add ...
 git pull origin hotfix       # 拉取远程最新代码
-
 ```
 
-# 输出中如果有 * hotfix，说明是本地分支
-git checkout hotfix
+合并分支到主分支的流程
+
+```sh
+# 1. 确保本地主分支是最新的
+git checkout main
+git pull origin main
+
+# 2. 将 hotfix 分支合并到主分支
+git merge origin/hotfix
+
+# 3.推送合并后的主分支到远程
+git push origin main
+
+# 4. 删除 hotfix 分支
+git push origin --delete hotfix
+git branch -d hotfix
+```
 
 ## git checkout
 
@@ -166,11 +180,56 @@ git stash pop
 
 它会**移动当前分支的 HEAD 指针**，从而“重写”提交历史。**主要用于本地的提交历史整理，千万不要对已经推送到远程仓库的提交使用它**
 
+```sh
+# 问题：你刚刚提交了 commit 3 (feat: 添加了用户个人资料页面)。但紧接着你发现，这个提交里有一个小错误（比如有个 console.log 没删掉），或者你想把这次提交拆分成两个更小的提交。
 
+# HEAD~1 表示 HEAD 的前一个提交，也就是 commit 2
+git reset --soft HEAD~1
+
+# - **发生了什么？**
+#     - `main` 分支的指针从 `commit 3` 移动回了 `commit 2`。
+#     - `commit 3` 这个提交记录“消失”了（从分支引用上看）。
+#     - **但是**，`commit 3` 中的所有文件修改都被保留在了**暂存区**。
+# - **现在状态**：
+git status
+# 输出：
+# On branch main
+# Changes to be committed:
+#   (use "git restore --staged <file>..." to unstage)
+#         new file:   profile.html
+#         modified:   app.js
+
+# - **后续操作**：
+#     你可以修改文件（比如删除 `console.log`），然后再次 `git add` 和 `git commit`，形成一个“干净”的新提交。
+# - 如果新提交（commit 3'）的修改与原 commit 3 完全一致，Git 会认为这是“重复提交”。
+# - 如果部分修改被删除（如 console.log），则新提交会覆盖原 commit 3 的对应内容。
+# - 原 commit 3 的提交记录已消失（因为 HEAD~1 回退了它），但修改已整合到新提交中。
+
+git reset --hard HEAD~1 # 彻底丢弃提交和修改：就像 `commit 3` 从未存在过一样。
+git reset --mixed HEAD~1# 默认选项 git reset HEAD~1。commit 3的修改被保留在了工作区，但不在暂存区。
+```
 
 ## git revert
 
+```sh
+# 撤销一个已经推送到远程的提交
+# 你不仅提交了 commit 3，还 git push origin main 把它推送到了远程仓库。然后，测试团队发现这个“用户个人资料页面”功能有一个严重的性能问题，导致整个网站变慢，需要立刻回滚。
+# 绝对不能使用 git reset！因为 reset 会重写本地历史，导致你的本地历史和远程历史不一致，git push 会被拒绝。强行推送 (git push --force) 会覆盖远程仓库的历史，给团队其他成员带来灾难。
 
+# 撤销 commit 3 的修改
+git revert a1b2c3d
+# - Git 会打开一个编辑器，让你为新提交填写信息。默认信息通常是 "Revert "feat: 添加了用户个人资料页面""，这很清晰。保存并关闭。
+
+git log --oneline
+# 输出：
+# f9e8d7c (HEAD -> main) Revert "feat: 添加了用户个人资料页面" <- 这是新的 commit 4
+# a1b2c3d (origin/main) feat: 添加了用户个人资料页面          <- 旧的 commit 3 依然存在
+# e4f5g6h fix: 修复了登录页面的一个样式问题
+# i7j8k9l feat: 完成了项目初始化和登录功能
+
+# 安全推送
+git push origin main
+```
 
 ## 配置用户名和邮箱
 
