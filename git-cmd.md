@@ -51,20 +51,129 @@
    - 切换分支
    - 合并分支
 
-   ```git
+   ```sh
    git branch <分支名>
    git checkout <分支名>
    git merge <分支名>
+   
+   # 切换分支时 Git 会自动更新工作区的文件，使其与目标分支的最新提交内容一致。这是 Git 分支切换的核心机制。
    ```
 
    - 查看当前分支
+   
+   
+   ```sh
+   git branch
+   # 可以使用命令查看更加详细的分支信息，包括远程和本地分支
+   git branch -a
+   ```
 
-     ```git
-     git branch
-     可以使用命令查看更加详细的分支信息，包括远程和本地分支
-     git branch -a
-     ```
+补充分支的理解和操作。
+
+```sh
+git branch -a  # 查看所有分支（本地和远程）
+# 输出中如果有 * hotfix，说明是本地分支
+git checkout hotfix
+# 本地工作区的内容会变成hotfix最后一次commit的样子。
+
+# 如果hotfix 是远程分支（如 origin/hotfix）
+# 创建本地分支并关联远程分支。
+git checkout hotfix          # 切换到本地分支
+git remote add ...
+git pull origin hotfix       # 拉取远程最新代码
+
+```
+
+# 输出中如果有 * hotfix，说明是本地分支
+git checkout hotfix
+
+## git checkout
+
+主要任务是切换分支和回到之前某个特定的commit/file。
+
+1. 查看之前提交的历史版本。
+
+```sh
+git log --oneline		# 获取想要得到的某个commit的哈希值
+git checkout e4f5g6h	# 切换到这个提交
+#    Note: switching to 'e4f5g6h'.
+#	You are in 'detached HEAD' state...
+# “detached HEAD”（分离头指针）状态意味着你的 `HEAD` 不再指向任何一个分支的末端，而是直接指向了一个具体的提交。 
+git log --oneline 		# 会发现 HEAD 指向了 e4f5g6h，而不是 main。
+
+# 当你确认完毕后，想回到最新的 main 分支，只需：
+git checkout main
+```
+
+关键点：这个操作是安全的。它没有删除任何提交。commit 3 依然存在，只是 HEAD 暂时离开了它。
+
+当切换到之前的某个提交时，本地的文件夹作为工作区会恢复的之前的状态，当返回main分支的时候，又会回来。需要注意的是当本地有修改没提交时，这个修改可能会被保留。
+
+2. 撤销某个文件的未提交修改。
+
+加入在commit 3的基础上修改了`profile.html`文件，但改的一团糟。想要放弃所有修改，回到`commit 3`时候的版本。
+
+```sh
+git status
+# 输出：
+# On branch main
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git restore <file>..." to discard changes in working directory)
+#         modified:   profile.html
+#
+# no changes added to commit (use "git add" and/or "git commit -a")
+
+git checkout -- profile.html
+
+git status
+# 输出：
+# On branch main
+# nothing to commit, working tree clean
+```
+
+## git stash
+
+临时储物柜。**临时保存你当前未提交的修改**，让工作区变得干净，以便你可以切换到其他分支或处理其他任务。之后你可以再把这些修改“取出来”。
+
+```sh
+# 你正在 main 分支上开发一个新功能（已经修改了 feature.js 和 style.css，但还没提交）。突然，你的 leader 说：“线上有个紧急 Bug，立刻切到 hotfix 分支去修复！”
+
+# 你不能直接 git checkout hotfix，因为 Git 会阻止你切换分支，说你的工作区有未提交的修改。
+git stash/git stash push -m "WIP: 正在开发新功能，一半"
+# Git 会把你的所有修改（包括暂存和未暂存的）从工作区和暂存区“拿走”，存到一个栈（stash list）里，然后你的工作区会变得和 `HEAD` (`commit 3`) 完全一样。
+
+# 切换分支，修改bug
+git checkout hotfix
+# ... 修复 Bug, 提交 ...
+git checkout main
+git merge hotfix
+
+# 查看储藏列表
+git stash list
+# stash@{0}: On main: WIP: 正在开发新功能，一半
+
+# 恢复储藏的内容（并从列表中删除）
+git stash pop
+
+# 或者，如果你只想查看，不想删除
+# git stash apply
+
+# 现在，你对 `feature.js` 和 `style.css` 的修改又回到了工作区，你可以继续开发了。
+```
+
+## git reset
+
+它会**移动当前分支的 HEAD 指针**，从而“重写”提交历史。**主要用于本地的提交历史整理，千万不要对已经推送到远程仓库的提交使用它**
+
+
+
+## git revert
+
+
+
 ## 配置用户名和邮箱
+
 - 用户名和邮箱用于查看提交信息
 ```git
 $ git config --global user.name
