@@ -55,10 +55,11 @@
    git branch <分支名>
    git checkout <分支名>
    git merge <分支名>
+   git merge brc2 # 是把brc2分支合并到当前分支上
    
    # 切换分支时 Git 会自动更新工作区的文件，使其与目标分支的最新提交内容一致。这是 Git 分支切换的核心机制。
    ```
-
+   
    - 查看当前分支
    
    
@@ -68,38 +69,23 @@
    git branch -a
    ```
 
-补充分支的理解和操作。
+远程次分支的创建，删除
 
 ```sh
-git branch -a  # 查看所有分支（本地和远程）
-# 输出中如果有 * hotfix，说明是本地分支
-git checkout hotfix
-# 本地工作区的内容会变成hotfix最后一次commit的样子。
-
-# 如果hotfix 是远程分支（如 origin/hotfix）
-# 创建本地分支并关联远程分支。
-git checkout hotfix          # 切换到本地分支
-git remote add ...
-git pull origin hotfix       # 拉取远程最新代码
+# 给远程仓库创建新的分支
+git checkout -b feature/new-page
+# 将本地分支推送到远程仓库
+git push -u origin  feature/new-page
+# 查看跟踪的远程分支
+git remote show origin
+# 删除远程分支和本地分支
+git push origin --delete feature/new-page
+git branch -d feature/new-page
+# 修剪本地仓库中远程已经不存在的追踪分支
+git remote prune origin
 ```
 
-合并分支到主分支的流程
 
-```sh
-# 1. 确保本地主分支是最新的
-git checkout main
-git pull origin main
-
-# 2. 将 hotfix 分支合并到主分支
-git merge origin/hotfix
-
-# 3.推送合并后的主分支到远程
-git push origin main
-
-# 4. 删除 hotfix 分支
-git push origin --delete hotfix
-git branch -d hotfix
-```
 
 ## git checkout
 
@@ -178,7 +164,7 @@ git stash pop
 
 ## git reset
 
-它会**移动当前分支的 HEAD 指针**，从而“重写”提交历史。**主要用于本地的提交历史整理，千万不要对已经推送到远程仓库的提交使用它**
+它会**移动当前分支的 HEAD 指针**，从而“重写”提交历史。**主要用于本地的提交历史整理，千万不要对已经推送到远程仓库的提交使用它**。回退到某个提交去修改，然后再次提交。
 
 ```sh
 # 问题：你刚刚提交了 commit 3 (feat: 添加了用户个人资料页面)。但紧接着你发现，这个提交里有一个小错误（比如有个 console.log 没删掉），或者你想把这次提交拆分成两个更小的提交。
@@ -210,6 +196,8 @@ git reset --mixed HEAD~1# 默认选项 git reset HEAD~1。commit 3的修改被�
 ```
 
 ## git revert
+
+撤销远程的某个commit。
 
 ```sh
 # 撤销一个已经推送到远程的提交
