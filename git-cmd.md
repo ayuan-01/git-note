@@ -85,8 +85,6 @@ git branch -d feature/new-page
 git remote prune origin
 ```
 
-
-
 ## git checkout
 
 主要任务是切换分支和回到之前某个特定的commit/file。
