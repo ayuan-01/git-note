@@ -14,6 +14,12 @@
    git clone https://github.com/user/repo.git
    ```
 
+   克隆远程仓库的其他分支
+
+   ```git
+   git clone https://github.com/tianocore/edk2.git -b stable/202011
+   ```
+
 3. 检查状态，添加文件到暂存区（将所有修改添加），提交更改
 
    ```git
@@ -59,10 +65,10 @@
    
    # 切换分支时 Git 会自动更新工作区的文件，使其与目标分支的最新提交内容一致。这是 Git 分支切换的核心机制。
    ```
-   
+
    - 查看当前分支
-   
-   
+
+
    ```sh
    git branch
    # 可以使用命令查看更加详细的分支信息，包括远程和本地分支
@@ -173,7 +179,7 @@ git reset --soft HEAD~1
 # - **发生了什么？**
 #     - `main` 分支的指针从 `commit 3` 移动回了 `commit 2`。
 #     - `commit 3` 这个提交记录“消失”了（从分支引用上看）。
-#     - **但是**，`commit 3` 中的所有文件修改都被保留在了**暂存区**。
+#     - **但是**，`commit 3` 中的所有文件修改都被保留在了暂存区。
 # - **现在状态**：
 git status
 # 输出：
